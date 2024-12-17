@@ -1,0 +1,115 @@
+main :: -> {
+    part1();
+    part2();
+    0
+}
+
+is_digit :: (char: u8) -> char >= '0' && char <= '9';
+
+parse_num :: (input: []u8, idx: *mut u64) -> i64 {
+    input := input[idx.*..];
+    if input.len == 0 return -1;
+    if !(input[0] | is_digit()) return -1;
+    mut endptr := nil.as(*u8);
+    res := strtol(input.ptr, endptr.&, 10);
+    idx.* += (endptr.as(i64) - input.ptr.as(i64)).as(u64);
+    res
+}
+
+part1 :: -> {
+    input := read_file_as_string_slice("./day3.in");
+    defer free(input.ptr.as(*void));
+
+    mut res := 0;
+
+    mut idx: u64 = 0;
+    while idx < input.len {
+        if input[idx] != 'm' {
+            idx += 1;
+            continue;
+        }
+        idx += 1;
+        if input[idx] != 'u' continue;
+        idx += 1;
+        if input[idx] != 'l' continue;
+        idx += 1;
+        if input[idx] != '(' continue;
+        idx += 1;
+        num1 := parse_num(input, &idx);
+        if num1 == -1 continue;
+        if input[idx] != ',' continue;
+        idx += 1;
+        num2 := parse_num(input, &idx);
+        if num2 == -1 continue;
+        if input[idx] != ')' continue;
+        idx += 1;
+        res += num1 * num2;
+    }
+
+    printf("result of part 1: %d\n".ptr, res); // 187194524
+}
+
+/// assumes `input[idx.*] == 'm`
+parse_mul :: (input: []u8, idx: *mut u64) -> i64 {
+    idx.* += 1;
+    if input[idx.*] != 'u' return -1;
+    idx.* += 1;
+    if input[idx.*] != 'l' return -1;
+    idx.* += 1;
+    if input[idx.*] != '(' return -1;
+    idx.* += 1;
+    num1 := parse_num(input, &idx.*);
+    if num1 == -1 return -1;
+    if input[idx.*] != ',' return -1;
+    idx.* += 1;
+    num2 := parse_num(input, &idx.*);
+    if num2 == -1 return -1;
+    if input[idx.*] != ')' return -1;
+    idx.* += 1;
+    num1 * num2
+}
+
+/// assumes `input[idx.*] == 'd`
+parse_toggle :: (input: []u8, idx: *mut u64, is_enabled: *mut bool) -> struct { ok: bool } {
+    idx.* += 1;
+    if input[idx.*] != 'o' return .(false);
+    idx.* += 1;
+
+    new_is_enabled := if input[idx.*] == 'n' {
+        idx.* += 1;
+        if input[idx.*] != '\'' return .(false);
+        idx.* += 1;
+        if input[idx.*] != 't' return .(false);
+        idx.* += 1;
+        false
+    } else true;
+
+    if input[idx.*] != '(' return .(false);
+    idx.* += 1;
+    if input[idx.*] != ')' return .(false);
+    idx.* += 1;
+    is_enabled.* = new_is_enabled;
+    .(true)
+}
+
+part2 :: -> {
+    input := read_file_as_string_slice("./day3.in");
+    defer free(input.ptr.as(*void));
+
+    mut res := 0;
+
+    mut idx: u64 = 0;
+    mut is_enabled := true;
+    while idx < input.len {
+        if input[idx] == 'm' {
+            mul := parse_mul(input, idx.&);
+            if mul != -1 && is_enabled do res += mul;
+        } else if input[idx] == 'd' {
+            parse_toggle(input, idx.&, is_enabled.&);
+        } else {
+            idx += 1;
+        }
+    }
+
+    printf("result of part 2: %d\n".ptr, res); // 127092535
+}
