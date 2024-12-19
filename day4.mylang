@@ -1,0 +1,72 @@
+main :: -> {
+    part1();
+    part2();
+    0
+}
+
+position :: (slice: []u8, target: u8) -> i64 {
+    0..slice.len | for idx {
+        if slice[idx] == target return idx.as(i64);
+    }
+    return -1;
+}
+
+WIDTH :: 140;
+HEIGHT :: 140;
+
+get :: (text: []u8, x: i64, y: i64) -> u8 {
+    if x < 0 || x >= WIDTH return 0;
+    if y < 0 || y >= HEIGHT return 0;
+    text[y * (WIDTH + 1) + x]
+}
+
+check_mas_in_direction :: (text: []u8, x: i64, y: i64, dx: i64, dy: i64) ->
+    text.get(x + 1 * dx, y + 1 * dy) == 'M'
+    && text.get(x + 2 * dx, y + 2 * dy) == 'A'
+    && text.get(x + 3 * dx, y + 3 * dy) == 'S';
+
+part1 :: -> {
+    input := read_file_as_string_slice("./day4.in");
+    defer free(input.ptr.as(*void));
+
+    mut res := 0;
+
+    0..HEIGHT | for y {
+        0..WIDTH | for x {
+            if input | get(x, y) != 'X' continue;
+            .[-1, 0, 1] | for dy {
+                .[-1, 0, 1] | for dx {
+                    if check_mas_in_direction(input, x, y, dx, dy)
+                        res += 1;
+                }
+            }
+        }
+    }
+
+    printf("result of part 1: %d\n".ptr, res); // 2524
+}
+
+check_x_mas :: (text: []u8, x: i64, y: i64) -> {
+    if text | get(x, y) != 'A' return false;
+    mas1 := (get(text, x - 1, y - 1) == 'M' && get(text, x + 1, y + 1) == 'S')
+        || (get(text, x - 1, y - 1) == 'S' && get(text, x + 1, y + 1) == 'M');
+    mas2 := (get(text, x - 1, y + 1) == 'M' && get(text, x + 1, y - 1) == 'S')
+        || (get(text, x - 1, y + 1) == 'S' && get(text, x + 1, y - 1) == 'M');
+    mas1 && mas2
+}
+
+part2 :: -> {
+    input := read_file_as_string_slice("./day4.in");
+    defer free(input.ptr.as(*void));
+
+    mut res := 0;
+
+    0..HEIGHT | for y {
+        0..WIDTH | for x {
+            if check_x_mas(input, x, y)
+                res += 1;
+        }
+    }
+
+    printf("result of part 2: %d\n".ptr, res); // 1873
+}
