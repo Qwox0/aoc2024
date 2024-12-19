@@ -26,7 +26,7 @@ check_mas_in_direction :: (text: []u8, x: i64, y: i64, dx: i64, dy: i64) ->
     && text.get(x + 3 * dx, y + 3 * dy) == 'S';
 
 part1 :: -> {
-    input := read_file_as_string_slice("./day4.in");
+    input := read_file_as_string_slice("./day04.in");
     defer free(input.ptr.as(*void));
 
     mut res := 0;
@@ -56,7 +56,7 @@ check_x_mas :: (text: []u8, x: i64, y: i64) -> {
 }
 
 part2 :: -> {
-    input := read_file_as_string_slice("./day4.in");
+    input := read_file_as_string_slice("./day04.in");
     defer free(input.ptr.as(*void));
 
     mut res := 0;

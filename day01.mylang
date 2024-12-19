@@ -13,10 +13,10 @@ compare_long :: (l: *c_long, r: *c_long) -> c_int {
 abs :: (x: i64) -> if x < 0 { -x } else x;
 
 part1 :: -> {
-    input := read_file_as_string_slice("./day1.in");
-    defer free(input.ptr);
-    input_lines :: 1000;
-    line_len :: 14;
+    input := read_file_as_string_slice("./day01.in");
+    defer free(input.ptr.as(*void));
+    input_lines : u64 : 1000;
+    line_len : u64 : 14;
 
     mut left_numbers: [input_lines]i64;
     mut right_numbers: [input_lines]i64;
@@ -27,8 +27,8 @@ part1 :: -> {
         right_numbers[idx] = strtol(line_text[8..8].ptr, nil, 10);
     }
 
-    qsort(&left_numbers, input_lines, 8, &compare_long);
-    qsort(&right_numbers, input_lines, 8, &compare_long);
+    qsort(left_numbers.&.as(*void), input_lines, 8, &compare_long);
+    qsort(right_numbers.&.as(*void), input_lines, 8, &compare_long);
 
     mut res := 0;
     0..input_lines | for idx {
@@ -40,16 +40,16 @@ part1 :: -> {
 
 position :: (arr: []i64, target: i64) -> i64 {
     0..arr.len | for idx {
-        if arr[idx] == target return idx;
+        if arr[idx] == target return idx.as(i64);
     }
     return -1;
 }
 
 part2 :: -> {
-    input := read_file_as_string_slice("./day1.in");
-    defer free(input.ptr);
-    input_lines :: 1000;
-    line_len :: 14;
+    input := read_file_as_string_slice("./day01.in");
+    defer free(input.ptr.as(*void));
+    input_lines : u64 : 1000;
+    line_len : u64 : 14;
 
     mut left_numbers: [input_lines]i64;
     mut right_numbers: [input_lines]i64;
@@ -60,8 +60,8 @@ part2 :: -> {
         right_numbers[idx] = strtol(line_text[8..8].ptr, nil, 10);
     }
 
-    qsort(&left_numbers, input_lines, 8, &compare_long);
-    qsort(&right_numbers, input_lines, 8, &compare_long);
+    qsort(left_numbers.&.as(*void), input_lines, 8, &compare_long);
+    qsort(right_numbers.&.as(*void), input_lines, 8, &compare_long);
 
     mut res := 0;
     left_numbers | for l {

@@ -6,16 +6,14 @@ main :: -> {
 
 position :: (slice: []u8, target: u8) -> i64 {
     0..slice.len | for idx {
-        if slice[idx] == target return idx;
+        if slice[idx] == target return idx.as(i64);
     }
     return -1;
 }
 
-SPACE : u8 : 32;
-
 parse_num :: (line: *mut []u8) -> i64 {
     num := strtol(line.*.ptr, nil, 10);
-    num_len := line.* | position(SPACE);
+    num_len := line.* | position(' ');
     line.* = if num_len == -1 do line.*[..0] else line.*[num_len + 1..];
     num
 }
@@ -30,14 +28,14 @@ sign :: (x: i64) -> i64 {
 }
 
 part1 :: -> {
-    input := read_file_as_string_slice("./day2.in");
-    defer free(input.ptr);
+    input := read_file_as_string_slice("./day02.in");
+    defer free(input.ptr.as(*void));
 
     mut res := 0;
 
-    mut lines := input;
+    mut lines := input[..];
     while true {
-        len := lines | position(LF);
+        len := lines | position('\n');
         if len == -1 break;
         line := lines[..len];
         lines = lines[len + 1..];
@@ -67,14 +65,14 @@ part1 :: -> {
 }
 
 part2 :: -> {
-    input := read_file_as_string_slice("./day2.in");
-    defer free(input.ptr);
+    input := read_file_as_string_slice("./day02.in");
+    defer free(input.ptr.as(*void));
 
     mut res := 0;
 
-    mut lines := input;
+    mut lines := input[..];
     while true {
-        len := lines | position(LF);
+        len := lines | position('\n');
         if len == -1 break;
         line := lines[..len];
         lines = lines[len + 1..];

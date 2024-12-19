@@ -10,14 +10,14 @@ parse_num :: (input: []u8, idx: *mut u64) -> i64 {
     input := input[idx.*..];
     if input.len == 0 return -1;
     if !(input[0] | is_digit()) return -1;
-    mut endptr := nil.as(*u8);
+    mut endptr: *u8 = nil;
     res := strtol(input.ptr, endptr.&, 10);
     idx.* += (endptr.as(i64) - input.ptr.as(i64)).as(u64);
     res
 }
 
 part1 :: -> {
-    input := read_file_as_string_slice("./day3.in");
+    input := read_file_as_string_slice("./day03.in");
     defer free(input.ptr.as(*void));
 
     mut res := 0;
@@ -93,7 +93,7 @@ parse_toggle :: (input: []u8, idx: *mut u64, is_enabled: *mut bool) -> struct { 
 }
 
 part2 :: -> {
-    input := read_file_as_string_slice("./day3.in");
+    input := read_file_as_string_slice("./day03.in");
     defer free(input.ptr.as(*void));
 
     mut res := 0;
