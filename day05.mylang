@@ -1,0 +1,167 @@
+main :: -> {
+    part1();
+    part2();
+    0
+}
+
+position :: (slice: []u8, target: u8) -> i64 {
+    0..slice.len | for idx {
+        if slice[idx] == target return idx.as(i64);
+    }
+    return -1;
+}
+
+Rule :: struct {
+    low: i64,
+    high: i64
+};
+
+compare_rule :: (l: *void, r: *void) -> c_int {
+    l := l.as(*Rule).*.low;
+    r := r.as(*Rule).*.low;
+    if l > r return 1;
+    if l < r return -1;
+    return 0;
+}
+
+part1 :: -> {
+    input := read_file_as_string_slice("./day05.in");
+    defer free(input.ptr.as(*void));
+
+    rule_count : u64 : 1176;
+    ptr := malloc(rule_count * 16);
+    rules := []Rule.{ ptr, len = rule_count };
+    defer free(rules.ptr.as(*void));
+
+    mut lines := input[..];
+    0.. | for idx {
+        len := lines | position('\n');
+        if len == -1 break;
+        line := lines[..len];
+        lines = lines[len + 1..];
+        if len == 0 break;
+
+        sep := lines | position('|');
+
+        low := atol(line.ptr);
+        high := atol(line[sep + 1..].ptr);
+        rules[idx] = .{ low, high };
+    }
+
+    mut res := 0;
+
+    while true {
+        len := lines | position('\n');
+        if len == -1 break;
+        len := len.as(u64);
+        line := lines[..len];
+        lines = lines[len + 1..];
+
+        page_count := (len + 1) / 3;
+        ptr := malloc(page_count * 8);
+        pages := []i64.{ ptr, len = page_count };
+        defer free(pages.ptr.as(*void));
+
+        0..page_count | for idx {
+            pages[idx] = atol(line[idx * 3..].ptr);
+        }
+
+        is_ordered := true;
+
+        0..pages.len | for idx {
+            page := pages[idx];
+            rules | for rule {
+                if rule.low != page continue;
+                pages[..idx] | for p {
+                    if p == rule.high
+                        is_ordered = false;
+                }
+            }
+        }
+
+        if is_ordered do res += pages[(page_count - 1) / 2];
+    }
+
+    printf("result of part 1: %d\n".ptr, res); // 4578
+}
+
+part2 :: -> {
+    input := read_file_as_string_slice("./day05.in");
+    defer free(input.ptr.as(*void));
+
+    rule_count : u64 : 1176;
+    ptr := malloc(rule_count * 16);
+    rules := []Rule.{ ptr, len = rule_count };
+    defer free(rules.ptr.as(*void));
+
+    mut lines := input[..];
+    0.. | for idx {
+        len := lines | position('\n');
+        if len == -1 break;
+        line := lines[..len];
+        lines = lines[len + 1..];
+        if len == 0 break;
+
+        sep := lines | position('|');
+
+        low := atol(line.ptr);
+        high := atol(line[sep + 1..].ptr);
+        rules[idx] = .{ low, high };
+    }
+
+    mut res := 0;
+
+    while true {
+        len := lines | position('\n');
+        if len == -1 break;
+        len := len.as(u64);
+        line := lines[..len];
+        lines = lines[len + 1..];
+
+        page_count := (len + 1) / 3;
+        ptr := malloc(page_count * 8);
+        pages := []i64.{ ptr, len = page_count };
+        defer free(pages.ptr.as(*void));
+
+        0..page_count | for idx {
+            pages[idx] = atol(line[idx * 3..].ptr);
+        }
+
+        is_ordered := true;
+
+        0..pages.len | for idx {
+            page := pages[idx];
+            rules | for rule {
+                if rule.low != page continue;
+                pages[..idx] | for p {
+                    if p == rule.high
+                        is_ordered = false;
+                }
+            }
+        }
+
+        if is_ordered continue;
+
+        // I don't want to implement a real stable sorting algorithm
+        mut did_swap := true;
+        while did_swap {
+            did_swap = false;
+            0..pages.len | for idx {
+                rules | for rule {
+                    if rule.low != pages[idx] continue;
+                    0..idx | for j {
+                        if pages[j] != rule.high continue;
+                        pages[idx] = pages[j];
+                        pages[j] = rule.low;
+                        did_swap = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        res += pages[(page_count - 1) / 2];
+    }
+
+    printf("result of part 2: %d\n".ptr, res); // 6179
+}
