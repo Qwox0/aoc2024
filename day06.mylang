@@ -1,0 +1,256 @@
+main :: -> {
+    part1();
+    part2();
+    0
+}
+
+position :: (slice: []u8, target: u8) -> i64 {
+    0..slice.len | for idx {
+        if slice[idx] == target return idx.as(i64);
+    }
+    return -1;
+}
+
+Direction :: enum { Up, Down, Left, Right };
+
+turn_right :: (d: Direction) -> {
+    if d == .Up return .Right;
+    if d == .Right return .Down;
+    if d == .Down return .Left;
+    .Up
+}
+
+Tile :: enum {
+    Invalid,
+    Empty,
+    Obstruction,
+    Player,
+    /// Only for part 1
+    Marked,
+};
+
+parse_tile :: (c: u8) -> Tile {
+    if c == '.' return .Empty;
+    if c == '#' return .Obstruction;
+    if c == '^' return .Player;
+    exit(1);
+}
+
+print_tile :: (t: Tile) ->
+    if t == .Empty
+        print_str(".")
+    else if t == .Obstruction
+        print_str("#")
+    else if t == .Player
+        print_str("p")
+    else if t == .Marked
+        print_str("X");
+    /*
+    else if t == .MarkedHorizontal
+        print_str("-")
+    else if t == .MarkedVertical
+        print_str("|");
+        */
+
+Position :: struct {
+    x: i64,
+    y: i64,
+}
+
+Player :: struct {
+    pos: Position,
+    direction := Direction.Up,
+}
+
+Map :: struct {
+    data: []Tile,
+    width: i64,
+}
+
+get :: (map: Map, x: i64, y: i64) -> {
+    if x < 0 || x >= map.width return .Invalid;
+    if y < 0 || y >= map.data.len.as(i64) / map.width return .Invalid;
+    map.data[y * map.width + x]
+}
+
+set :: (map: Map, x: i64, y: i64, val: Tile) -> {
+    if x < 0 || x >= map.width do exit(1);
+    if y < 0 || y >= map.data.len.as(i64) / map.width do exit(1);
+    map.data[y * map.width + x] = val;
+}
+
+part1 :: -> {
+    input := read_file_as_string_slice("./day06.in");
+    defer free(input.ptr.as(*void));
+
+    width := input.position('\n');
+    len := (width * width).as(u64);
+    ptr := malloc(len);
+    defer free(ptr.as(*void));
+    map := Map.{ data = .{ ptr, len }, width };
+
+    mut player := Player.{ pos = .(-1, -1) };
+
+    mut res := 0;
+
+    mut lines := input[..];
+    0.. | for y {
+        len := lines.position('\n');
+        if len == -1 break;
+        line := lines[..len];
+        lines = lines[len + 1..];
+
+        0..line.len.as(i64) | for x {
+            tile := parse_tile(line[x]);
+            if tile == .Player {
+                player.pos = .(x.as(i64), y);
+                map.set(x, y, .Marked);
+                res += 1;
+            } else
+                map.set(x, y, tile);
+        }
+    }
+
+    while true {
+        dx := if player.direction == .Right do 1
+            else if player.direction == .Left do -1
+            else 0;
+        dy := if player.direction == .Up do -1
+            else if player.direction == .Down do 1
+            else 0;
+
+        peek := map.get(player.pos.x + dx, player.pos.y + dy);
+        if peek == .Invalid break;
+        if peek == .Obstruction {
+            player.direction = player.direction.turn_right();
+            continue;
+        }
+
+        player.pos.x += dx;
+        player.pos.y += dy;
+        if peek != .Marked {
+            map.set(player.pos.x, player.pos.y, .Marked);
+            res += 1;
+        }
+    }
+
+    0..map.width | for y {
+        0..map.width | for x {
+            tile := map.get(x, y);
+            tile.print_tile();
+        }
+        println_str("");
+    }
+
+    printf("result of part 1: %d\n".ptr, res); // 4883
+}
+
+Marker2 :: struct {
+    up: bool,
+    down: bool,
+    left: bool,
+    right: bool,
+}
+
+MarkerMap :: struct {
+    data: []Marker2,
+    width: i64,
+}
+
+is_marked :: (map: MarkerMap, x: i64, y: i64, dir: Direction) -> {
+    if x < 0 || x >= map.width do exit(1);
+    if y < 0 || y >= map.data.len.as(i64) / map.width do exit(1);
+    marker := map.data[y * map.width + x];
+    if dir == .Up do marker.up
+    else if dir == .Down do marker.down
+    else if dir == .Left do marker.left
+    else if dir == .Right do marker.right
+    else exit(1)
+}
+
+mark :: (map: MarkerMap, x: i64, y: i64, dir: Direction) -> {
+    if x < 0 || x >= map.width do exit(1);
+    if y < 0 || y >= map.data.len.as(i64) / map.width do exit(1);
+    if dir == .Up do map.data[y * map.width + x].up = true
+    else if dir == .Down do map.data[y * map.width + x].down = true
+    else if dir == .Left do map.data[y * map.width + x].left = true
+    else if dir == .Right do map.data[y * map.width + x].right = true
+    else exit(1);
+}
+
+part2 :: -> {
+    input := read_file_as_string_slice("./day06.in");
+    defer free(input.ptr.as(*void));
+
+    width := input.position('\n');
+    len := (width * width).as(u64);
+    ptr := malloc(len);
+    defer free(ptr);
+    map := Map.{ data = .{ ptr, len }, width };
+
+    mut player := Player.{ pos = .(-1, -1) };
+
+    mut res := 0;
+
+    mut lines := input[..];
+    0.. | for y {
+        len := lines.position('\n');
+        if len == -1 break;
+        line := lines[..len];
+        lines = lines[len + 1..];
+
+        0..line.len.as(i64) | for x {
+            tile := parse_tile(line[x]);
+            if tile == .Player
+                player.pos = .(x, y);
+            map.set(x, y, tile);
+        }
+    }
+
+    0..width | for y do 0..width | for x {
+        if map.get(x, y) != .Empty continue;
+
+        ptr_cpy_map := malloc(len);
+        defer free(ptr_cpy_map);
+        memcpy(ptr_cpy_map, ptr, len);
+        map := Map.{ data = .{ ptr = ptr_cpy_map, len }, width };
+        map.set(x, y, .Obstruction);
+
+        mut player := .{ pos = player.pos };
+
+        ptr2 := malloc(len * 4);
+        memset(ptr2, 0, len * 4);
+        defer free(ptr2);
+        marker_map := MarkerMap.{ data = .{ ptr = ptr2, len }, width };
+        marker_map.mark(player.pos.x, player.pos.y, player.direction);
+
+        while true {
+            dx := if player.direction == .Right do 1
+                else if player.direction == .Left do -1
+                else 0;
+            dy := if player.direction == .Up do -1
+                else if player.direction == .Down do 1
+                else 0;
+            player_is_horizontal := player.direction == .Right || player.direction == .Left;
+
+            peek := map.get(player.pos.x + dx, player.pos.y + dy);
+            if peek == .Invalid break;
+            if peek == .Obstruction {
+                player.direction = player.direction.turn_right();
+                marker_map.mark(player.pos.x, player.pos.y, player.direction);
+                continue;
+            }
+
+            player.pos.x += dx;
+            player.pos.y += dy;
+
+            if marker_map.is_marked(player.pos.x, player.pos.y, player.direction) {
+                res += 1;
+                break;
+            }
+            marker_map.mark(player.pos.x, player.pos.y, player.direction);
+        }
+    }
+
+    printf("result of part 2: %d\n".ptr, res); // 1655
+}
