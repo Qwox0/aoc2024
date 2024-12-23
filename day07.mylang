@@ -1,0 +1,139 @@
+main :: -> {
+    part1();
+    part2();
+    0
+}
+
+position :: (slice: []u8, target: u8) -> i64 {
+    for idx in 0..slice.len {
+        if slice[idx] == target return idx.as(i64);
+    }
+    return -1;
+}
+
+parse_num :: (line: *mut []u8) -> i64 {
+    num := atol(line.*.ptr);
+    num_len := line.*.position(' ');
+    line.* = if num_len == -1 do line.*[..0] else line.*[num_len + 1..];
+    num
+}
+
+count :: (line: []u8, target: u8) -> u64 {
+    mut pos := 0;
+    mut count: u64 = 0;
+    while true {
+        p := line[pos..].position(target);
+        if p == -1 break;
+        pos += p + 1;
+        count += 1;
+    }
+    count
+}
+
+part1 :: -> {
+    input := read_file_as_string_slice("./day07.in");
+    defer free(input.ptr.as(*void));
+
+    mut res := 0;
+
+    mut lines := input[..];
+    while true {
+        len := lines |> position('\n');
+        if len == -1 break;
+        line := lines[..len];
+        lines = lines[len + 1..];
+
+        test_val := parse_num(&mut line);
+        count := line.count(' ') + 1;
+
+        nums_ptr := malloc(count * 8);
+        defer free(nums_ptr);
+        nums := []i64.{ ptr = nums_ptr, len = count };
+
+        mut idx := 0;
+        while line.len > 0 {
+            nums[idx] = parse_num(&mut line);
+            idx += 1;
+        }
+
+        op_count := nums.len - 1;
+        ops_max := 1 << op_count;
+        for ops in 0..ops_max {
+            mut acc := nums[0];
+            for idx in 1..nums.len {
+                op := ops & (1 << (idx - 1));
+                if op == 0 do acc += nums[idx]
+                else acc *= nums[idx];
+            }
+
+            if acc == test_val {
+                res += acc;
+                break;
+            }
+        }
+    }
+
+    printf("result of part 1: %lu\n".ptr, res); // 20281182715321
+}
+
+pow :: (base: i64, exp: u64) -> i64 {
+    mut pow := 1;
+    for _ in 0..exp do pow *= base;
+    pow
+}
+
+part2 :: -> {
+    input := read_file_as_string_slice("./day07.in");
+    defer free(input.ptr.as(*void));
+
+    mut res := 0;
+
+    mut lines := input[..];
+    while true {
+        len := lines |> position('\n');
+        if len == -1 break;
+        line := lines[..len];
+        lines = lines[len + 1..];
+
+        test_val := parse_num(&mut line);
+        count := line.count(' ') + 1;
+
+        nums_ptr := malloc(count * 8);
+        defer free(nums_ptr);
+        nums := []i64.{ ptr = nums_ptr, len = count };
+
+        mut idx := 0;
+        while line.len > 0 {
+            nums[idx] = parse_num(&mut line);
+            idx += 1;
+        }
+
+        op_count := nums.len - 1;
+        ops_max := 1 << 2 * op_count;
+        for ops in 0..ops_max {
+            mut acc := nums[0];
+            for idx in 1..nums.len {
+                op := ops >> 2 * (idx - 1) & 0b11;
+                if op == 0 do acc += nums[idx]
+                else if op == 1 do acc *= nums[idx]
+                else if op == 2 do {
+                    n := nums[idx];
+                    n_digit_count := log10(n.as(f64)).as(u64) + 1;
+                    acc *= pow(10, n_digit_count);
+                    acc += n;
+                } else {
+                    //invalid op
+                    acc = 0;
+                    break;
+                }
+            }
+
+            if acc == test_val {
+                res += acc;
+                break;
+            }
+        }
+    }
+
+    printf("result of part 2: %lu\n".ptr, res); // 159490400628354
+}
