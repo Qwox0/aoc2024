@@ -1,0 +1,176 @@
+main :: -> {
+    part1();
+    part2();
+    0
+}
+
+position :: (slice: []u8, target: u8) -> i64 {
+    for idx in 0..slice.len {
+        if slice[idx] == target return idx.as(i64);
+    }
+    return -1;
+}
+
+Vec2 :: struct {
+    x: i64,
+    y: i64,
+}
+
+print_vec2 :: (v: Vec2) -> {
+    printf("(%d,".ptr, v.x);
+    printf("%d)".ptr, v.y);
+}
+
+add_vec2 :: (lhs: Vec2, rhs: Vec2) -> Vec2.(lhs.x + rhs.x, lhs.y + rhs.y);
+sub_vec2 :: (lhs: Vec2, rhs: Vec2) -> Vec2.(lhs.x - rhs.x, lhs.y - rhs.y);
+neg_vec2 :: (v: Vec2) -> Vec2.(-v.x, -v.y);
+
+Antenna :: struct {
+    pos: Vec2,
+    freq: u8,
+}
+
+AntennaList :: struct {
+    ptr: *mut Antenna,
+    len: u64,
+    cap: u64,
+}
+
+alloc_antenna_list :: (cap: u64) -> AntennaList.{ ptr = malloc(cap), len = 0, cap };
+
+add_antenna :: (list: *mut AntennaList, a: Antenna) -> {
+    len := list.*.len;
+    if len >= list.*.cap do panic("reached maximum antenna list size");
+    ptr := list.*.ptr;
+    []Antenna.{ ptr, len = len + 1 }[len] = a;
+    list.*.len += 1;
+}
+
+antennas_as_slice :: (list: AntennaList) -> []Antenna.{ ptr = list.ptr, len = list.len };
+
+AntinodesMat :: struct {
+    ptr: *mut bool,
+    width: i64,
+    height: i64,
+}
+
+antinodes_as_slice :: (mat: AntinodesMat) ->
+    []bool.{ ptr = mat.ptr, len = (mat.width * mat.height).as(u64) };
+
+alloc_antinodes_mat :: (width: i64, height: i64) -> AntinodesMat.{
+    ptr = malloc0((width * height).as(u64)),
+    width,
+    height,
+};
+
+println_antinodes :: (mat: AntinodesMat) -> {
+    slice := mat.antinodes_as_slice();
+    for y in 0..mat.height {
+        for x in 0..mat.width {
+            c := if slice[y * mat.width + x] '#' else '.';
+            printf("%c ".ptr, c.as(i64));
+        }
+        putchar('\n');
+    }
+}
+
+mark_antinode :: (mat: *mut AntinodesMat, pos: Vec2) -> struct { was_in_bound: bool } {
+    slice := mat.*.antinodes_as_slice();
+    if pos.x < 0 || pos.x >= mat.*.width return .(false);
+    if pos.y < 0 || pos.y >= mat.*.height return .(false);
+    slice[pos.y * mat.*.width + pos.x] = true;
+    .(true)
+}
+
+part1 :: -> {
+    input := read_file_as_string_slice("./day08.in");
+    defer free(input.ptr.as(*void));
+    width :: 50;
+    height :: width;
+
+    antennas := alloc_antenna_list((width * height * 8 * 3).as(u64));
+    defer free(antennas.ptr.as(*void));
+
+    mut antinodes := alloc_antinodes_mat(width, height);
+    defer free(antinodes.ptr.as(*void));
+
+    mut lines := input[..];
+    0.. |> for y {
+        len := lines.position('\n');
+        if len == -1 break;
+        line := lines[..len];
+        lines = lines[len + 1..];
+
+        for x in 0..line.len {
+            char := line[x];
+            if char == '.' continue;
+            pos := Vec2.(x.as(i64), y);
+            for a in antennas.antennas_as_slice() {
+                if a.freq != char continue;
+                diff := pos.sub_vec2(a.pos);
+                antinodes.&mut.mark_antinode(pos.add_vec2(diff));
+                antinodes.&mut.mark_antinode(a.pos.add_vec2(neg_vec2(diff)));
+            }
+            antennas.&mut.add_antenna(.{ pos, freq = char });
+        }
+    }
+
+    antinodes.println_antinodes();
+
+    mut res := 0;
+    antinodes.antinodes_as_slice() |> for n if n do res += 1;
+
+    printf("result of part 1: %d\n".ptr, res); // 278
+}
+
+mark_harmonics :: (antinodes: *mut AntinodesMat, start_pos: Vec2, direction: Vec2) -> {
+    mut p := start_pos;
+    while true {
+        p = p.add_vec2(direction);
+        // res := antinodes.mark_antinode(p);
+        // if !res.was_in_bound break;
+        if !antinodes.mark_antinode(p).was_in_bound break;
+    }
+}
+
+part2 :: -> {
+    input := read_file_as_string_slice("./day08.in");
+    defer free(input.ptr.as(*void));
+    width :: 50;
+    height :: width;
+
+    antennas := alloc_antenna_list((width * height * 8 * 3).as(u64));
+    defer free(antennas.ptr.as(*void));
+
+    mut antinodes := alloc_antinodes_mat(width, height);
+    defer free(antinodes.ptr.as(*void));
+
+    mut lines := input[..];
+    0.. |> for y {
+        len := lines.position('\n');
+        if len == -1 break;
+        line := lines[..len];
+        lines = lines[len + 1..];
+
+        for x in 0..line.len {
+            char := line[x];
+            if char == '.' continue;
+            pos := Vec2.(x.as(i64), y);
+            for a in antennas.antennas_as_slice() {
+                if a.freq != char continue;
+                diff := pos.sub_vec2(a.pos);
+                antinodes.&mut.mark_antinode(pos);
+                antinodes.&mut.mark_harmonics(pos, diff);
+                antinodes.&mut.mark_harmonics(pos, neg_vec2(diff));
+            }
+            antennas.&mut.add_antenna(.{ pos, freq = char });
+        }
+    }
+
+    antinodes.println_antinodes();
+
+    mut res := 0;
+    antinodes.antinodes_as_slice() |> for n if n do res += 1;
+
+    printf("result of part 2: %d\n".ptr, res); // 1067
+}
