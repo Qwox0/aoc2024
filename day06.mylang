@@ -5,7 +5,7 @@ main :: -> {
 }
 
 position :: (slice: []u8, target: u8) -> i64 {
-    0..slice.len | for idx {
+    0..slice.len |> for idx {
         if slice[idx] == target return idx.as(i64);
     }
     return -1;
@@ -45,12 +45,6 @@ print_tile :: (t: Tile) ->
         print_str("p")
     else if t == .Marked
         print_str("X");
-    /*
-    else if t == .MarkedHorizontal
-        print_str("-")
-    else if t == .MarkedVertical
-        print_str("|");
-        */
 
 Position :: struct {
     x: i64,
@@ -94,13 +88,13 @@ part1 :: -> {
     mut res := 0;
 
     mut lines := input[..];
-    0.. | for y {
+    0.. |> for y {
         len := lines.position('\n');
         if len == -1 break;
         line := lines[..len];
         lines = lines[len + 1..];
 
-        0..line.len.as(i64) | for x {
+        0..line.len.as(i64) |> for x {
             tile := parse_tile(line[x]);
             if tile == .Player {
                 player.pos = .(x.as(i64), y);
@@ -134,8 +128,8 @@ part1 :: -> {
         }
     }
 
-    0..map.width | for y {
-        0..map.width | for x {
+    0..map.width |> for y {
+        0..map.width |> for x {
             tile := map.get(x, y);
             tile.print_tile();
         }
@@ -193,13 +187,13 @@ part2 :: -> {
     mut res := 0;
 
     mut lines := input[..];
-    0.. | for y {
+    0.. |> for y {
         len := lines.position('\n');
         if len == -1 break;
         line := lines[..len];
         lines = lines[len + 1..];
 
-        0..line.len.as(i64) | for x {
+        0..line.len.as(i64) |> for x {
             tile := parse_tile(line[x]);
             if tile == .Player
                 player.pos = .(x, y);
@@ -207,7 +201,7 @@ part2 :: -> {
         }
     }
 
-    0..width | for y do 0..width | for x {
+    0..width |> for y do 0..width |> for x {
         if map.get(x, y) != .Empty continue;
 
         ptr_cpy_map := malloc(len);

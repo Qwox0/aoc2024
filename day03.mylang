@@ -9,7 +9,7 @@ is_digit :: (char: u8) -> char >= '0' && char <= '9';
 parse_num :: (input: []u8, idx: *mut u64) -> i64 {
     input := input[idx.*..];
     if input.len == 0 return -1;
-    if !(input[0] | is_digit()) return -1;
+    if !(input[0].is_digit()) return -1;
     mut endptr: *u8 = nil;
     res := strtol(input.ptr, endptr.&, 10);
     idx.* += (endptr.as(i64) - input.ptr.as(i64)).as(u64);

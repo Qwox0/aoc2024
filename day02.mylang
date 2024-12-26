@@ -5,7 +5,7 @@ main :: -> {
 }
 
 position :: (slice: []u8, target: u8) -> i64 {
-    0..slice.len | for idx {
+    0..slice.len |> for idx {
         if slice[idx] == target return idx.as(i64);
     }
     return -1;
@@ -13,7 +13,7 @@ position :: (slice: []u8, target: u8) -> i64 {
 
 parse_num :: (line: *mut []u8) -> i64 {
     num := strtol(line.*.ptr, nil, 10);
-    num_len := line.* | position(' ');
+    num_len := line.*.position(' ');
     line.* = if num_len == -1 do line.*[..0] else line.*[num_len + 1..];
     num
 }
@@ -35,7 +35,7 @@ part1 :: -> {
 
     mut lines := input[..];
     while true {
-        len := lines | position('\n');
+        len := lines.position('\n');
         if len == -1 break;
         line := lines[..len];
         lines = lines[len + 1..];
@@ -72,12 +72,12 @@ part2 :: -> {
 
     mut lines := input[..];
     while true {
-        len := lines | position('\n');
+        len := lines.position('\n');
         if len == -1 break;
         line := lines[..len];
         lines = lines[len + 1..];
 
-        -1.. | for skip_idx {
+        -1.. |> for skip_idx {
             mut number_idx := 0;
             mut numbers := line[..];
             mut prev_num := -1;

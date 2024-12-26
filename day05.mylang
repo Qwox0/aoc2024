@@ -5,7 +5,7 @@ main :: -> {
 }
 
 position :: (slice: []u8, target: u8) -> i64 {
-    0..slice.len | for idx {
+    0..slice.len |> for idx {
         if slice[idx] == target return idx.as(i64);
     }
     return -1;
@@ -34,14 +34,14 @@ part1 :: -> {
     defer free(rules.ptr.as(*void));
 
     mut lines := input[..];
-    0.. | for idx {
-        len := lines | position('\n');
+    0.. |> for idx {
+        len := lines.position('\n');
         if len == -1 break;
         line := lines[..len];
         lines = lines[len + 1..];
         if len == 0 break;
 
-        sep := lines | position('|');
+        sep := lines.position('|');
 
         low := atol(line.ptr);
         high := atol(line[sep + 1..].ptr);
@@ -51,7 +51,7 @@ part1 :: -> {
     mut res := 0;
 
     while true {
-        len := lines | position('\n');
+        len := lines.position('\n');
         if len == -1 break;
         len := len.as(u64);
         line := lines[..len];
@@ -62,17 +62,17 @@ part1 :: -> {
         pages := []i64.{ ptr, len = page_count };
         defer free(pages.ptr.as(*void));
 
-        0..page_count | for idx {
+        0..page_count |> for idx {
             pages[idx] = atol(line[idx * 3..].ptr);
         }
 
         is_ordered := true;
 
-        0..pages.len | for idx {
+        0..pages.len |> for idx {
             page := pages[idx];
-            rules | for rule {
+            rules |> for rule {
                 if rule.low != page continue;
-                pages[..idx] | for p {
+                pages[..idx] |> for p {
                     if p == rule.high
                         is_ordered = false;
                 }
@@ -95,14 +95,14 @@ part2 :: -> {
     defer free(rules.ptr.as(*void));
 
     mut lines := input[..];
-    0.. | for idx {
-        len := lines | position('\n');
+    0.. |> for idx {
+        len := lines.position('\n');
         if len == -1 break;
         line := lines[..len];
         lines = lines[len + 1..];
         if len == 0 break;
 
-        sep := lines | position('|');
+        sep := lines.position('|');
 
         low := atol(line.ptr);
         high := atol(line[sep + 1..].ptr);
@@ -112,7 +112,7 @@ part2 :: -> {
     mut res := 0;
 
     while true {
-        len := lines | position('\n');
+        len := lines.position('\n');
         if len == -1 break;
         len := len.as(u64);
         line := lines[..len];
@@ -123,17 +123,17 @@ part2 :: -> {
         pages := []i64.{ ptr, len = page_count };
         defer free(pages.ptr.as(*void));
 
-        0..page_count | for idx {
+        0..page_count |> for idx {
             pages[idx] = atol(line[idx * 3..].ptr);
         }
 
         is_ordered := true;
 
-        0..pages.len | for idx {
+        0..pages.len |> for idx {
             page := pages[idx];
-            rules | for rule {
+            rules |> for rule {
                 if rule.low != page continue;
-                pages[..idx] | for p {
+                pages[..idx] |> for p {
                     if p == rule.high
                         is_ordered = false;
                 }
@@ -146,10 +146,10 @@ part2 :: -> {
         mut did_swap := true;
         while did_swap {
             did_swap = false;
-            0..pages.len | for idx {
-                rules | for rule {
+            0..pages.len |> for idx {
+                rules |> for rule {
                     if rule.low != pages[idx] continue;
-                    0..idx | for j {
+                    0..idx |> for j {
                         if pages[j] != rule.high continue;
                         pages[idx] = pages[j];
                         pages[j] = rule.low;

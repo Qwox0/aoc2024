@@ -23,7 +23,7 @@ part1 :: -> {
     mut left_numbers: [input_lines]i64;
     mut right_numbers: [input_lines]i64;
 
-    0..input_lines | for idx {
+    0..input_lines |> for idx {
         line_text := input[idx * line_len..input.len];
         left_numbers[idx] = strtol(line_text.ptr, nil, 10);
         right_numbers[idx] = strtol(line_text[8..8].ptr, nil, 10);
@@ -33,7 +33,7 @@ part1 :: -> {
     qsort(right_numbers.&.as(*void), input_lines, 8, &compare_long);
 
     mut res := 0;
-    0..input_lines | for idx {
+    0..input_lines |> for idx {
         res += abs(left_numbers[idx] - right_numbers[idx]);
     }
 
@@ -41,7 +41,7 @@ part1 :: -> {
 }
 
 position :: (arr: []i64, target: i64) -> i64 {
-    0..arr.len | for idx {
+    0..arr.len |> for idx {
         if arr[idx] == target return idx.as(i64);
     }
     return -1;
@@ -56,7 +56,7 @@ part2 :: -> {
     mut left_numbers: [input_lines]i64;
     mut right_numbers: [input_lines]i64;
 
-    0..input_lines | for idx {
+    0..input_lines |> for idx {
         line_text := input[idx * line_len..input.len];
         left_numbers[idx] = strtol(line_text.ptr, nil, 10);
         right_numbers[idx] = strtol(line_text[8..8].ptr, nil, 10);
@@ -66,8 +66,8 @@ part2 :: -> {
     qsort(right_numbers.&.as(*void), input_lines, 8, &compare_long);
 
     mut res := 0;
-    left_numbers | for l {
-        pos := right_numbers[..] | position(l);
+    left_numbers |> for l {
+        pos := right_numbers[..] |> position(l);
         if pos == -1 continue;
         mut count := 1;
         while right_numbers[pos + count] == l {

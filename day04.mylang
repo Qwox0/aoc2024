@@ -5,7 +5,7 @@ main :: -> {
 }
 
 position :: (slice: []u8, target: u8) -> i64 {
-    0..slice.len | for idx {
+    0..slice.len |> for idx {
         if slice[idx] == target return idx.as(i64);
     }
     return -1;
@@ -31,15 +31,11 @@ part1 :: -> {
 
     mut res := 0;
 
-    0..HEIGHT | for y {
-        0..WIDTH | for x {
-            if input | get(x, y) != 'X' continue;
-            .[-1, 0, 1] | for dy {
-                .[-1, 0, 1] | for dx {
-                    if check_mas_in_direction(input, x, y, dx, dy)
-                        res += 1;
-                }
-            }
+    for y in 0..HEIGHT do for x in 0..WIDTH {
+        if input.get(x, y) != 'X' continue;
+        for dy in .[-1, 0, 1] do for dx in .[-1, 0, 1] {
+            if check_mas_in_direction(input, x, y, dx, dy)
+                res += 1;
         }
     }
 
@@ -47,7 +43,7 @@ part1 :: -> {
 }
 
 check_x_mas :: (text: []u8, x: i64, y: i64) -> {
-    if text | get(x, y) != 'A' return false;
+    if text.get(x, y) != 'A' return false;
     mas1 := (get(text, x - 1, y - 1) == 'M' && get(text, x + 1, y + 1) == 'S')
         || (get(text, x - 1, y - 1) == 'S' && get(text, x + 1, y + 1) == 'M');
     mas2 := (get(text, x - 1, y + 1) == 'M' && get(text, x + 1, y - 1) == 'S')
@@ -61,12 +57,10 @@ part2 :: -> {
 
     mut res := 0;
 
-    0..HEIGHT | for y {
-        0..WIDTH | for x {
+    for y in 0..HEIGHT
+        for x in 0..WIDTH
             if check_x_mas(input, x, y)
                 res += 1;
-        }
-    }
 
     printf("result of part 2: %d\n".ptr, res); // 1873
 }
