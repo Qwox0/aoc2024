@@ -1,3 +1,6 @@
+std :: #import "std";
+libc :: #import "libc";
+
 main :: -> {
     part1();
     part2();
@@ -12,7 +15,7 @@ position :: (slice: []u8, target: u8) -> i64 {
 }
 
 parse_num :: (line: *mut []u8) -> i64 {
-    num := strtol(line.*.ptr, nil, 10);
+    num := libc.strtol(line.*.ptr, nil, 10);
     num_len := line.*.position(' ');
     line.* = if num_len == -1 do line.*[..0] else line.*[num_len + 1..];
     num
@@ -28,8 +31,8 @@ sign :: (x: i64) -> i64 {
 }
 
 part1 :: -> {
-    input := read_file_as_string_slice("./day02.in");
-    defer free(input.ptr.as(*void));
+    input := std.read_file_as_string_slice("./day02.in");
+    defer libc.free(input.ptr.as(*void));
 
     mut res := 0;
 
@@ -61,12 +64,13 @@ part1 :: -> {
         if is_valid do res += 1;
     }
 
-    printf("result of part 1: %d\n".ptr, res); // 306
+    libc.printf("result of part 1: %d\n".ptr, res);
+    std.assert(res == 306);
 }
 
 part2 :: -> {
-    input := read_file_as_string_slice("./day02.in");
-    defer free(input.ptr.as(*void));
+    input := std.read_file_as_string_slice("./day02.in");
+    defer libc.free(input.ptr.as(*void));
 
     mut res := 0;
 
@@ -114,5 +118,6 @@ part2 :: -> {
         }
     }
 
-    printf("result of part 2: %d\n".ptr, res); // 366
+    libc.printf("result of part 2: %d\n".ptr, res);
+    std.assert(res == 366);
 }

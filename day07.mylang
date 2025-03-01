@@ -1,3 +1,6 @@
+std :: #import "std";
+libc :: #import "libc";
+
 main :: -> {
     part1();
     part2();
@@ -12,7 +15,7 @@ position :: (slice: []u8, target: u8) -> i64 {
 }
 
 parse_num :: (line: *mut []u8) -> i64 {
-    num := atol(line.*.ptr);
+    num := libc.atol(line.*.ptr);
     num_len := line.*.position(' ');
     line.* = if num_len == -1 do line.*[..0] else line.*[num_len + 1..];
     num
@@ -31,8 +34,8 @@ count :: (line: []u8, target: u8) -> u64 {
 }
 
 part1 :: -> {
-    input := read_file_as_string_slice("./day07.in");
-    defer free(input.ptr.as(*void));
+    input := std.read_file_as_string_slice("./day07.in");
+    defer libc.free(input.ptr.as(*void));
 
     mut res := 0;
 
@@ -46,8 +49,8 @@ part1 :: -> {
         test_val := parse_num(&mut line);
         count := line.count(' ') + 1;
 
-        nums_ptr := malloc(count * 8);
-        defer free(nums_ptr);
+        nums_ptr := libc.malloc(count * 8);
+        defer libc.free(nums_ptr);
         nums := []i64.{ ptr = nums_ptr, len = count };
 
         mut idx := 0;
@@ -73,7 +76,8 @@ part1 :: -> {
         }
     }
 
-    printf("result of part 1: %lu\n".ptr, res); // 20281182715321
+    libc.printf("result of part 1: %lu\n".ptr, res);
+    std.assert(res == 20281182715321);
 }
 
 pow :: (base: i64, exp: u64) -> i64 {
@@ -83,8 +87,8 @@ pow :: (base: i64, exp: u64) -> i64 {
 }
 
 part2 :: -> {
-    input := read_file_as_string_slice("./day07.in");
-    defer free(input.ptr.as(*void));
+    input := std.read_file_as_string_slice("./day07.in");
+    defer libc.free(input.ptr.as(*void));
 
     mut res := 0;
 
@@ -98,8 +102,8 @@ part2 :: -> {
         test_val := parse_num(&mut line);
         count := line.count(' ') + 1;
 
-        nums_ptr := malloc(count * 8);
-        defer free(nums_ptr);
+        nums_ptr := libc.malloc(count * 8);
+        defer libc.free(nums_ptr);
         nums := []i64.{ ptr = nums_ptr, len = count };
 
         mut idx := 0;
@@ -118,7 +122,7 @@ part2 :: -> {
                 else if op == 1 do acc *= nums[idx]
                 else if op == 2 do {
                     n := nums[idx];
-                    n_digit_count := log10(n.as(f64)).as(u64) + 1;
+                    n_digit_count := libc.log10(n.as(f64)).as(u64) + 1;
                     acc *= pow(10, n_digit_count);
                     acc += n;
                 } else {
@@ -135,5 +139,6 @@ part2 :: -> {
         }
     }
 
-    printf("result of part 2: %lu\n".ptr, res); // 159490400628354
+    libc.printf("result of part 2: %lu\n".ptr, res);
+    std.assert(res == 159490400628354);
 }

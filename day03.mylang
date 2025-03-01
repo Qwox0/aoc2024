@@ -1,3 +1,6 @@
+std :: #import "std";
+libc :: #import "libc";
+
 main :: -> {
     part1();
     part2();
@@ -11,14 +14,14 @@ parse_num :: (input: []u8, idx: *mut u64) -> i64 {
     if input.len == 0 return -1;
     if !(input[0].is_digit()) return -1;
     mut endptr: *u8 = nil;
-    res := strtol(input.ptr, endptr.&, 10);
+    res := libc.strtol(input.ptr, endptr.&, 10);
     idx.* += (endptr.as(i64) - input.ptr.as(i64)).as(u64);
     res
 }
 
 part1 :: -> {
-    input := read_file_as_string_slice("./day03.in");
-    defer free(input.ptr.as(*void));
+    input := std.read_file_as_string_slice("./day03.in");
+    defer libc.free(input.ptr.as(*void));
 
     mut res := 0;
 
@@ -46,7 +49,8 @@ part1 :: -> {
         res += num1 * num2;
     }
 
-    printf("result of part 1: %d\n".ptr, res); // 187194524
+    libc.printf("result of part 1: %d\n".ptr, res);
+    std.assert(res == 187194524);
 }
 
 /// assumes `input[idx.*] == 'm`
@@ -93,8 +97,8 @@ parse_toggle :: (input: []u8, idx: *mut u64, is_enabled: *mut bool) -> struct { 
 }
 
 part2 :: -> {
-    input := read_file_as_string_slice("./day03.in");
-    defer free(input.ptr.as(*void));
+    input := std.read_file_as_string_slice("./day03.in");
+    defer libc.free(input.ptr.as(*void));
 
     mut res := 0;
 
@@ -111,5 +115,6 @@ part2 :: -> {
         }
     }
 
-    printf("result of part 2: %d\n".ptr, res); // 127092535
+    libc.printf("result of part 2: %d\n".ptr, res);
+    std.assert(res == 127092535);
 }

@@ -1,3 +1,6 @@
+std :: #import "std";
+libc :: #import "libc";
+
 main :: -> {
     part1();
     part2();
@@ -16,7 +19,7 @@ Rule :: struct {
     high: i64
 };
 
-compare_rule :: (l: *void, r: *void) -> c_int {
+compare_rule :: (l: *void, r: *void) -> libc.c_int {
     l := l.as(*Rule).*.low;
     r := r.as(*Rule).*.low;
     if l > r return 1;
@@ -25,13 +28,13 @@ compare_rule :: (l: *void, r: *void) -> c_int {
 }
 
 part1 :: -> {
-    input := read_file_as_string_slice("./day05.in");
-    defer free(input.ptr.as(*void));
+    input := std.read_file_as_string_slice("./day05.in");
+    defer libc.free(input.ptr.as(*void));
 
     rule_count : u64 : 1176;
-    ptr := malloc(rule_count * 16);
+    ptr := libc.malloc(rule_count * 16);
     rules := []Rule.{ ptr, len = rule_count };
-    defer free(rules.ptr.as(*void));
+    defer libc.free(rules.ptr.as(*void));
 
     mut lines := input[..];
     0.. |> for idx {
@@ -43,8 +46,8 @@ part1 :: -> {
 
         sep := lines.position('|');
 
-        low := atol(line.ptr);
-        high := atol(line[sep + 1..].ptr);
+        low := libc.atol(line.ptr);
+        high := libc.atol(line[sep + 1..].ptr);
         rules[idx] = .{ low, high };
     }
 
@@ -58,12 +61,12 @@ part1 :: -> {
         lines = lines[len + 1..];
 
         page_count := (len + 1) / 3;
-        ptr := malloc(page_count * 8);
+        ptr := libc.malloc(page_count * 8);
         pages := []i64.{ ptr, len = page_count };
-        defer free(pages.ptr.as(*void));
+        defer libc.free(pages.ptr.as(*void));
 
         0..page_count |> for idx {
-            pages[idx] = atol(line[idx * 3..].ptr);
+            pages[idx] = libc.atol(line[idx * 3..].ptr);
         }
 
         is_ordered := true;
@@ -82,17 +85,18 @@ part1 :: -> {
         if is_ordered do res += pages[(page_count - 1) / 2];
     }
 
-    printf("result of part 1: %d\n".ptr, res); // 4578
+    libc.printf("result of part 1: %d\n".ptr, res);
+    std.assert(res == 4578);
 }
 
 part2 :: -> {
-    input := read_file_as_string_slice("./day05.in");
-    defer free(input.ptr.as(*void));
+    input := std.read_file_as_string_slice("./day05.in");
+    defer libc.free(input.ptr.as(*void));
 
     rule_count : u64 : 1176;
-    ptr := malloc(rule_count * 16);
+    ptr := libc.malloc(rule_count * 16);
     rules := []Rule.{ ptr, len = rule_count };
-    defer free(rules.ptr.as(*void));
+    defer libc.free(rules.ptr.as(*void));
 
     mut lines := input[..];
     0.. |> for idx {
@@ -104,8 +108,8 @@ part2 :: -> {
 
         sep := lines.position('|');
 
-        low := atol(line.ptr);
-        high := atol(line[sep + 1..].ptr);
+        low := libc.atol(line.ptr);
+        high := libc.atol(line[sep + 1..].ptr);
         rules[idx] = .{ low, high };
     }
 
@@ -119,12 +123,12 @@ part2 :: -> {
         lines = lines[len + 1..];
 
         page_count := (len + 1) / 3;
-        ptr := malloc(page_count * 8);
+        ptr := libc.malloc(page_count * 8);
         pages := []i64.{ ptr, len = page_count };
-        defer free(pages.ptr.as(*void));
+        defer libc.free(pages.ptr.as(*void));
 
         0..page_count |> for idx {
-            pages[idx] = atol(line[idx * 3..].ptr);
+            pages[idx] = libc.atol(line[idx * 3..].ptr);
         }
 
         is_ordered := true;
@@ -163,5 +167,6 @@ part2 :: -> {
         res += pages[(page_count - 1) / 2];
     }
 
-    printf("result of part 2: %d\n".ptr, res); // 6179
+    libc.printf("result of part 2: %d\n".ptr, res);
+    std.assert(res == 6179);
 }

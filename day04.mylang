@@ -1,3 +1,6 @@
+std :: #import "std";
+libc :: #import "libc";
+
 main :: -> {
     part1();
     part2();
@@ -26,8 +29,8 @@ check_mas_in_direction :: (text: []u8, x: i64, y: i64, dx: i64, dy: i64) ->
     && text.get(x + 3 * dx, y + 3 * dy) == 'S';
 
 part1 :: -> {
-    input := read_file_as_string_slice("./day04.in");
-    defer free(input.ptr.as(*void));
+    input := std.read_file_as_string_slice("./day04.in");
+    defer libc.free(input.ptr.as(*void));
 
     mut res := 0;
 
@@ -39,7 +42,8 @@ part1 :: -> {
         }
     }
 
-    printf("result of part 1: %d\n".ptr, res); // 2524
+    libc.printf("result of part 1: %d\n".ptr, res);
+    std.assert(res == 2524);
 }
 
 check_x_mas :: (text: []u8, x: i64, y: i64) -> {
@@ -52,8 +56,8 @@ check_x_mas :: (text: []u8, x: i64, y: i64) -> {
 }
 
 part2 :: -> {
-    input := read_file_as_string_slice("./day04.in");
-    defer free(input.ptr.as(*void));
+    input := std.read_file_as_string_slice("./day04.in");
+    defer libc.free(input.ptr.as(*void));
 
     mut res := 0;
 
@@ -62,5 +66,6 @@ part2 :: -> {
             if check_x_mas(input, x, y)
                 res += 1;
 
-    printf("result of part 2: %d\n".ptr, res); // 1873
+    libc.printf("result of part 2: %d\n".ptr, res);
+    std.assert(res == 1873);
 }

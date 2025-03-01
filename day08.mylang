@@ -1,3 +1,6 @@
+std :: #import "std";
+libc :: #import "libc";
+
 main :: -> {
     part1();
     part2();
@@ -17,8 +20,8 @@ Vec2 :: struct {
 }
 
 print_vec2 :: (v: Vec2) -> {
-    printf("(%d,".ptr, v.x);
-    printf("%d)".ptr, v.y);
+    libc.printf("(%d,".ptr, v.x);
+    libc.printf("%d)".ptr, v.y);
 }
 
 add_vec2 :: (lhs: Vec2, rhs: Vec2) -> Vec2.(lhs.x + rhs.x, lhs.y + rhs.y);
@@ -36,11 +39,11 @@ AntennaList :: struct {
     cap: u64,
 }
 
-alloc_antenna_list :: (cap: u64) -> AntennaList.{ ptr = malloc(cap), len = 0, cap };
+alloc_antenna_list :: (cap: u64) -> AntennaList.{ ptr = libc.malloc(cap), len = 0, cap };
 
 add_antenna :: (list: *mut AntennaList, a: Antenna) -> {
     len := list.*.len;
-    if len >= list.*.cap do panic("reached maximum antenna list size");
+    if len >= list.*.cap do std.panic("reached maximum antenna list size");
     ptr := list.*.ptr;
     []Antenna.{ ptr, len = len + 1 }[len] = a;
     list.*.len += 1;
@@ -58,7 +61,7 @@ antinodes_as_slice :: (mat: AntinodesMat) ->
     []bool.{ ptr = mat.ptr, len = (mat.width * mat.height).as(u64) };
 
 alloc_antinodes_mat :: (width: i64, height: i64) -> AntinodesMat.{
-    ptr = malloc0((width * height).as(u64)),
+    ptr = std.malloc0((width * height).as(u64)),
     width,
     height,
 };
@@ -68,9 +71,9 @@ println_antinodes :: (mat: AntinodesMat) -> {
     for y in 0..mat.height {
         for x in 0..mat.width {
             c := if slice[y * mat.width + x] '#' else '.';
-            printf("%c ".ptr, c.as(i64));
+            libc.printf("%c ".ptr, c.as(i64));
         }
-        putchar('\n');
+        libc.putchar('\n');
     }
 }
 
@@ -83,16 +86,16 @@ mark_antinode :: (mat: *mut AntinodesMat, pos: Vec2) -> struct { was_in_bound: b
 }
 
 part1 :: -> {
-    input := read_file_as_string_slice("./day08.in");
-    defer free(input.ptr.as(*void));
+    input := std.read_file_as_string_slice("./day08.in");
+    defer libc.free(input.ptr.as(*void));
     width :: 50;
     height :: width;
 
     antennas := alloc_antenna_list((width * height * 8 * 3).as(u64));
-    defer free(antennas.ptr.as(*void));
+    defer libc.free(antennas.ptr.as(*void));
 
     mut antinodes := alloc_antinodes_mat(width, height);
-    defer free(antinodes.ptr.as(*void));
+    defer libc.free(antinodes.ptr.as(*void));
 
     mut lines := input[..];
     0.. |> for y {
@@ -120,7 +123,8 @@ part1 :: -> {
     mut res := 0;
     antinodes.antinodes_as_slice() |> for n if n do res += 1;
 
-    printf("result of part 1: %d\n".ptr, res); // 278
+    libc.printf("result of part 1: %d\n".ptr, res);
+    std.assert(res == 278);
 }
 
 mark_harmonics :: (antinodes: *mut AntinodesMat, start_pos: Vec2, direction: Vec2) -> {
@@ -134,16 +138,16 @@ mark_harmonics :: (antinodes: *mut AntinodesMat, start_pos: Vec2, direction: Vec
 }
 
 part2 :: -> {
-    input := read_file_as_string_slice("./day08.in");
-    defer free(input.ptr.as(*void));
+    input := std.read_file_as_string_slice("./day08.in");
+    defer libc.free(input.ptr.as(*void));
     width :: 50;
     height :: width;
 
     antennas := alloc_antenna_list((width * height * 8 * 3).as(u64));
-    defer free(antennas.ptr.as(*void));
+    defer libc.free(antennas.ptr.as(*void));
 
     mut antinodes := alloc_antinodes_mat(width, height);
-    defer free(antinodes.ptr.as(*void));
+    defer libc.free(antinodes.ptr.as(*void));
 
     mut lines := input[..];
     0.. |> for y {
@@ -172,5 +176,6 @@ part2 :: -> {
     mut res := 0;
     antinodes.antinodes_as_slice() |> for n if n do res += 1;
 
-    printf("result of part 2: %d\n".ptr, res); // 1067
+    libc.printf("result of part 2: %d\n".ptr, res);
+    std.assert(res == 1067);
 }
