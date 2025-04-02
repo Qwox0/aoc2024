@@ -43,7 +43,7 @@ part1 :: -> {
     while true {
         len := lines |> position('\n');
         if len == -1 break;
-        line := lines[..len];
+        mut line := lines[..len];
         lines = lines[len + 1..];
 
         test_val := parse_num(&mut line);
@@ -51,7 +51,7 @@ part1 :: -> {
 
         nums_ptr := libc.malloc(count * 8);
         defer libc.free(nums_ptr);
-        nums := []i64.{ ptr = nums_ptr, len = count };
+        nums := []mut i64.{ ptr = nums_ptr, len = count };
 
         mut idx := 0;
         while line.len > 0 {
@@ -96,7 +96,7 @@ part2 :: -> {
     while true {
         len := lines |> position('\n');
         if len == -1 break;
-        line := lines[..len];
+        mut line := lines[..len];
         lines = lines[len + 1..];
 
         test_val := parse_num(&mut line);
@@ -104,7 +104,7 @@ part2 :: -> {
 
         nums_ptr := libc.malloc(count * 8);
         defer libc.free(nums_ptr);
-        nums := []i64.{ ptr = nums_ptr, len = count };
+        nums := []mut i64.{ ptr = nums_ptr, len = count };
 
         mut idx := 0;
         while line.len > 0 {

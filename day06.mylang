@@ -60,7 +60,7 @@ Player :: struct {
 }
 
 Map :: struct {
-    data: []Tile,
+    data: []mut Tile,
     width: i64,
 }
 
@@ -151,7 +151,7 @@ Marker2 :: struct {
 }
 
 MarkerMap :: struct {
-    data: []Marker2,
+    data: []mut Marker2,
     width: i64,
 }
 

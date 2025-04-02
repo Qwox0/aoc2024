@@ -45,7 +45,7 @@ add_antenna :: (list: *mut AntennaList, a: Antenna) -> {
     len := list.*.len;
     if len >= list.*.cap do std.panic("reached maximum antenna list size");
     ptr := list.*.ptr;
-    []Antenna.{ ptr, len = len + 1 }[len] = a;
+    []mut Antenna.{ ptr, len = len + 1 }[len] = a;
     list.*.len += 1;
 }
 
@@ -58,7 +58,7 @@ AntinodesMat :: struct {
 }
 
 antinodes_as_slice :: (mat: AntinodesMat) ->
-    []bool.{ ptr = mat.ptr, len = (mat.width * mat.height).as(u64) };
+    []mut bool.{ ptr = mat.ptr, len = (mat.width * mat.height).as(u64) };
 
 alloc_antinodes_mat :: (width: i64, height: i64) -> AntinodesMat.{
     ptr = std.malloc0((width * height).as(u64)),
@@ -91,7 +91,7 @@ part1 :: -> {
     width :: 50;
     height :: width;
 
-    antennas := alloc_antenna_list((width * height * 8 * 3).as(u64));
+    mut antennas := alloc_antenna_list((width * height * 8 * 3).as(u64));
     defer libc.free(antennas.ptr.as(*void));
 
     mut antinodes := alloc_antinodes_mat(width, height);
@@ -143,7 +143,7 @@ part2 :: -> {
     width :: 50;
     height :: width;
 
-    antennas := alloc_antenna_list((width * height * 8 * 3).as(u64));
+    mut antennas := alloc_antenna_list((width * height * 8 * 3).as(u64));
     defer libc.free(antennas.ptr.as(*void));
 
     mut antinodes := alloc_antinodes_mat(width, height);

@@ -7,9 +7,9 @@ main :: -> {
     0
 }
 
-compare_long :: (l: *void, r: *void) -> libc.c_int {
-    l := l.as(*libc.c_long).*;
-    r := r.as(*libc.c_long).*;
+compare_long :: (l: *libc.c_long, r: *libc.c_long) -> libc.c_int {
+    l := l.*;
+    r := r.*;
     if l > r return 1;
     if l < r return -1;
     return 0;

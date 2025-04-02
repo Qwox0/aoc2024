@@ -38,11 +38,11 @@ part1 :: -> {
         idx += 1;
         if input[idx] != '(' continue;
         idx += 1;
-        num1 := parse_num(input, &idx);
+        num1 := parse_num(input, &mut idx);
         if num1 == -1 continue;
         if input[idx] != ',' continue;
         idx += 1;
-        num2 := parse_num(input, &idx);
+        num2 := parse_num(input, &mut idx);
         if num2 == -1 continue;
         if input[idx] != ')' continue;
         idx += 1;
@@ -62,11 +62,11 @@ parse_mul :: (input: []u8, idx: *mut u64) -> i64 {
     idx.* += 1;
     if input[idx.*] != '(' return -1;
     idx.* += 1;
-    num1 := parse_num(input, &idx.*);
+    num1 := parse_num(input, idx);
     if num1 == -1 return -1;
     if input[idx.*] != ',' return -1;
     idx.* += 1;
-    num2 := parse_num(input, &idx.*);
+    num2 := parse_num(input, idx);
     if num2 == -1 return -1;
     if input[idx.*] != ')' return -1;
     idx.* += 1;
@@ -106,10 +106,10 @@ part2 :: -> {
     mut is_enabled := true;
     while idx < input.len {
         if input[idx] == 'm' {
-            mul := parse_mul(input, idx.&);
+            mul := parse_mul(input, idx.&mut);
             if mul != -1 && is_enabled do res += mul;
         } else if input[idx] == 'd' {
-            parse_toggle(input, idx.&, is_enabled.&);
+            parse_toggle(input, idx.&mut, is_enabled.&mut);
         } else {
             idx += 1;
         }
